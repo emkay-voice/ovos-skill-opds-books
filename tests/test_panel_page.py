@@ -22,7 +22,7 @@ def test_the_page_description_names_files_that_exist():
     for key in ("html", "icon"):
         assert (PANEL / page[key]).is_file(), key
     assert callable(page["routes"])
-    assert page["group"] == panel.READING["id"] and panel.READING in page["groups"]
+    assert page["group"] == panel.LIBRARY["id"] and panel.LIBRARY in page["groups"]
 
 
 def test_the_page_speaks_every_language_the_skill_does():
@@ -36,7 +36,7 @@ def test_the_page_speaks_every_language_the_skill_does():
     used = (set(re.findall(r'data-i18n="([^"]+)"', html)) | set(re.findall(r'\bt\("([^"]+)"', html))
             | set(re.findall(r'field\("[^"]*", "([^"]+)"', html)))
     assert used <= keys, "a string the page uses has no translation"
-    assert keys - used <= {"reading.group", "books.title"}, "a translation nothing uses"
+    assert keys - used <= {"nav.group.library", "books.title"}, "a translation nothing uses"
 
 
 # ── the routes, against the skill itself on a bus ────────────────────────────

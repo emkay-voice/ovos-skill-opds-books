@@ -1,5 +1,5 @@
 {
- "reading.group": "Læsning",
+ "nav.group.library": "Bibliotek",
  "books.title": "Bøger",
  "books.intro": "Bøger læst højt fra e-bogskataloger (OPDS), som Standard Ebooks eller din egen biblioteksserver. Tilføj katalogerne her; så kan du bede om bøgerne i dem ved titel eller forfatter.",
  "books.catalogs.title": "Kataloger",

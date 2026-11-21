@@ -68,7 +68,7 @@ an e-reader app does.
 ## In the control panel
 
 With [ovos-control-panel](https://github.com/OpenVoiceOS/ovos-control-panel) on the device, the skill brings
-its own page, **Books**, under **Reading**. It shows each catalog with how many books it has, when it was read and,
+its own page, **Books**, under **Library**. It shows each catalog with how many books it has, when it was read and,
 if it could not be read, why. There you add, change and remove catalogs, set how often they are read, and read
 them again at once. A password is never shown: leave the field empty to keep it. Changing the catalogs needs the
 panel's access token.

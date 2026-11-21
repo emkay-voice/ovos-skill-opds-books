@@ -1,5 +1,5 @@
 {
- "reading.group": "Reading",
+ "nav.group.library": "Library",
  "books.title": "Books",
  "books.intro": "Books read aloud from e-book catalogs (OPDS), such as Standard Ebooks or your own library server. Add the catalogs here; the books in them can then be asked for by title or author.",
  "books.catalogs.title": "Catalogs",

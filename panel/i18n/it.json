@@ -1,5 +1,5 @@
 {
- "reading.group": "Lettura",
+ "nav.group.library": "Biblioteca",
  "books.title": "Libri",
  "books.intro": "Libri letti ad alta voce da cataloghi di e-book (OPDS), come Standard Ebooks o il tuo server di biblioteca. Aggiungi qui i cataloghi; poi potrai chiedere i loro libri per titolo o autore.",
  "books.catalogs.title": "Cataloghi",

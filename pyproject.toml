@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ovos-skill-opds-books"
-version = "0.1.0a2"
+version = "0.1.0a3"
 description = "Reads books aloud from e-book catalogs - any OPDS catalog (1 or 2), or a feed of books such as Standard Ebooks' new releases. A provider for the common reading pipeline."
 readme = "README.md"
 license = {text = "Apache-2.0"}

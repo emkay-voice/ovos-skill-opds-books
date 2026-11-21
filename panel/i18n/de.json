@@ -1,5 +1,5 @@
 {
- "reading.group": "Lesen",
+ "nav.group.library": "Bibliothek",
  "books.title": "Bücher",
  "books.intro": "Bücher, vorgelesen aus E-Book-Katalogen (OPDS) wie Standard Ebooks oder deinem eigenen Bibliotheksserver. Füge die Kataloge hier hinzu; dann kannst du die Bücher darin nach Titel oder Autor verlangen.",
  "books.catalogs.title": "Kataloge",
