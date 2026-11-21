@@ -65,6 +65,22 @@ catalog. Books are read from EPUB first, and from PDF, HTML or text when a book 
 among the defaults. Whether to add it is up to you. The skill downloads a book only when someone asks to hear it, as
 an e-reader app does.
 
+## In the control panel
+
+With [ovos-control-panel](https://github.com/OpenVoiceOS/ovos-control-panel) on the device, the skill brings
+its own page, **Books**, under **Reading**. It shows each catalog with how many books it has, when it was read and,
+if it could not be read, why. There you add, change and remove catalogs, set how often they are read, and read
+them again at once. A password is never shown: leave the field empty to keep it. Changing the catalogs needs the
+panel's access token.
+
+### The messages behind it
+
+| Message | Data | Answer (`<message>.response`) |
+|---|---|---|
+| `ovos.opds.catalogs.list` | | `catalogs` (url, name, title, username, login, language, books, fetched, retry_after, error; never a password), `refresh_hours`, `refreshing` |
+| `ovos.opds.catalogs.set` | `catalogs` (url, name, username, password, language; a password of `null` keeps the one it had), optional `refresh_hours` | as `list`, after saving them and starting to read them |
+| `ovos.opds.catalogs.refresh` | | as `list`; the catalogs are read in the background |
+
 ## Being polite to catalogs
 
 - `robots.txt` is honoured when the skill reads a catalog on its own. A book someone asks to hear is fetched
