@@ -1,0 +1,23 @@
+{
+  "skill_id": "ovos-skill-opds-books.emkay-voice",
+  "source": "https://github.com/emkay-voice/ovos-skill-opds-books",
+  "package_name": "ovos-skill-opds-books",
+  "pip_spec": "ovos-skill-opds-books",
+  "license": "Apache-2.0",
+  "author": "emkay-voice",
+  "name": "OPDS-bøger",
+  "description": "Læser bøger op fra e-bogskataloger - ethvert OPDS-katalog eller et feed med bøger som Standard Ebooks' nye udgivelser.",
+  "examples": [
+    "læs bogen ...",
+    "læs en bog"
+  ],
+  "tags": [
+    "books",
+    "reading",
+    "opds",
+    "ebooks",
+    "provider",
+    "common reading"
+  ],
+  "icon": "https://raw.githubusercontent.com/emkay-voice/ovos-skill-opds-books/main/icon.png"
+}

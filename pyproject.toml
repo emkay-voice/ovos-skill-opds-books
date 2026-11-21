@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ovos-skill-opds-books"
+version = "0.1.0a1"
+description = "Reads books aloud from e-book catalogs - any OPDS catalog (1 or 2), or a feed of books such as Standard Ebooks' new releases. A provider for the common reading pipeline."
+readme = "README.md"
+license = {text = "Apache-2.0"}
+authors = [{name = "Andreas Lorensen"}]
+requires-python = ">=3.10"
+keywords = ["ovos", "openvoiceos", "skill", "voice", "assistant", "reading", "books", "ebooks", "opds", "epub", "standard-ebooks", "common-reading", "emkay"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Intended Audience :: End Users/Desktop",
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+dependencies = [
+    "ovos-workshop>=0.0.15,<10.0.0",
+    "ovos-utils>=0.0.38",
+    "ovos-bus-client>=0.0.8",
+    "requests",
+    "beautifulsoup4",
+    "pypdf>=4",
+    "python-docx>=1.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest", "ovos-common-reading-pipeline-plugin"]
+
+[project.urls]
+Homepage = "https://github.com/emkay-voice/ovos-skill-opds-books"
+Issues = "https://github.com/emkay-voice/ovos-skill-opds-books/issues"
+Emkay = "https://github.com/emkay-voice/emkay"
+"Reading pipeline" = "https://github.com/andlo/ovos-common-reading-pipeline-plugin"
+Icon = "https://raw.githubusercontent.com/emkay-voice/ovos-skill-opds-books/main/icon.png"
+
+[project.entry-points."opm.skill"]
+"ovos-skill-opds-books.emkay-voice" = "ovos_skill_opds_books:OPDSBooksSkill"
+
+[tool.setuptools]
+packages = ["ovos_skill_opds_books"]
+
+[tool.setuptools.package-dir]
+ovos_skill_opds_books = ""
+
+[tool.setuptools.package-data]
+ovos_skill_opds_books = ["locale/**/*", "*.png", "settingsmeta.json"]

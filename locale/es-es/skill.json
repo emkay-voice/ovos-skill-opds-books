@@ -1,0 +1,22 @@
+{
+  "skill_id": "ovos-skill-opds-books.emkay-voice",
+  "source": "https://github.com/emkay-voice/ovos-skill-opds-books",
+  "package_name": "ovos-skill-opds-books",
+  "pip_spec": "ovos-skill-opds-books",
+  "license": "Apache-2.0",
+  "author": "emkay-voice",
+  "name": "Libros OPDS",
+  "description": "Lee en voz alta libros de catálogos de libros electrónicos - cualquier catálogo OPDS o un feed de libros.",
+  "examples": [
+    "léeme un libro"
+  ],
+  "tags": [
+    "books",
+    "reading",
+    "opds",
+    "ebooks",
+    "provider",
+    "common reading"
+  ],
+  "icon": "https://raw.githubusercontent.com/emkay-voice/ovos-skill-opds-books/main/icon.png"
+}

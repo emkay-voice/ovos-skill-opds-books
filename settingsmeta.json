@@ -1,0 +1,27 @@
+{
+  "skillMetadata": {
+    "sections": [
+      {
+        "name": "Book catalogs",
+        "fields": [
+          {
+            "type": "label",
+            "label": "One catalog per line: url | name | username | password | language (all but the url can be left out). Any OPDS catalog works, or a feed of books. Standard Ebooks' full catalog (https://standardebooks.org/feeds/opds) is for their Patrons Circle: your email as username, no password. Language is for catalogs that do not say (default English)."
+          },
+          {
+            "name": "catalogs",
+            "type": "text",
+            "label": "Catalogs",
+            "value": "https://standardebooks.org/feeds/atom/new-releases | Standard Ebooks"
+          },
+          {
+            "name": "refresh_hours",
+            "type": "number",
+            "label": "Read the catalogs again every (hours)",
+            "value": "24"
+          }
+        ]
+      }
+    ]
+  }
+}
