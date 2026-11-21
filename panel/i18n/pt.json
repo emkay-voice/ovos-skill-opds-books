@@ -1,5 +1,5 @@
 {
- "reading.group": "Leitura",
+ "nav.group.library": "Biblioteca",
  "books.title": "Livros",
  "books.intro": "Livros lidos em voz alta a partir de catálogos de livros eletrónicos (OPDS), como o Standard Ebooks ou o seu próprio servidor de biblioteca. Adicione os catálogos aqui; depois pode pedir os livros por título ou autor.",
  "books.catalogs.title": "Catálogos",

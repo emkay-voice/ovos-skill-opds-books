@@ -16,8 +16,10 @@ def routes(r):
     add(r)
 
 
-#: the group the reading skills share; any of them may bring it, the first wins
-READING = {"id": "reading", "title": {"key": "reading.group", "label": "Reading"},
+#: the panel's Library group: what the device reads and plays for you. Newer
+#: panels have it themselves; this brings it to older ones, and its name to
+#: the languages the panel itself has no strings for
+LIBRARY = {"id": "library", "title": {"key": "nav.group.library", "label": "Library"},
            "order": 5, "level": "everyday"}
 
 PAGE = {
@@ -25,8 +27,8 @@ PAGE = {
     "id": "books",
     "path": "/books",
     "title": {"key": "books.title", "label": "Books"},
-    "group": "reading",
-    "groups": [READING],
+    "group": "library",
+    "groups": [LIBRARY],
     "order": 20,
     "needs": ["ovos-skill-opds-books"],
     "html": "page.html",

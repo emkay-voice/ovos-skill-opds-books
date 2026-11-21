@@ -1,5 +1,5 @@
 {
- "reading.group": "Lecture",
+ "nav.group.library": "Bibliothèque",
  "books.title": "Livres",
  "books.intro": "Des livres lus à voix haute depuis des catalogues de livres numériques (OPDS), comme Standard Ebooks ou votre propre serveur de bibliothèque. Ajoutez les catalogues ici ; vous pourrez ensuite demander leurs livres par titre ou par auteur.",
  "books.catalogs.title": "Catalogues",

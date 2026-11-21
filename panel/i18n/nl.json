@@ -1,5 +1,5 @@
 {
- "reading.group": "Lezen",
+ "nav.group.library": "Bibliotheek",
  "books.title": "Boeken",
  "books.intro": "Boeken voorgelezen uit e-bookcatalogi (OPDS), zoals Standard Ebooks of je eigen bibliotheekserver. Voeg de catalogi hier toe; daarna kun je de boeken erin opvragen op titel of auteur.",
  "books.catalogs.title": "Catalogi",
