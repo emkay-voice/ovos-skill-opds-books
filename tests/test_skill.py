@@ -203,3 +203,44 @@ def test_the_default_catalog(tmp_path, monkeypatch, web):
 def test_settings_text(skill):
     assert skill_module.parse_catalogs("https://a.example/opds | My Lib | me | pw | da\nnot a url\n") == \
         [{"url": "https://a.example/opds", "name": "My Lib", "username": "me", "password": "pw", "language": "da"}]
+
+
+# --- the catalogs, for a control-panel page -------------------------------------------------
+
+def ask(bus, topic, data=None):
+    seen = Recorder(bus, f"{topic}.response")
+    bus.emit(Message(topic, data or {}))
+    [reply] = seen.of(f"{topic}.response")
+    return reply.data
+
+
+def test_the_catalogs_are_listed_without_passwords(tmp_path, monkeypatch, web):
+    s, bus = make_skill(tmp_path, monkeypatch, f"{CLASSICS} | Classics | me | secret | da", web)
+    data = ask(bus, skill_module.CATALOGS_LIST)
+    [c] = data["catalogs"]
+    assert c["url"] == CLASSICS and c["name"] == "Classics" and c["language"] == "da"
+    assert c["login"] is True and c["username"] == "me" and c["books"] > 0
+    assert "secret" not in str(data) and "password" not in c
+
+
+def test_setting_catalogs_saves_them_and_keeps_a_password_not_sent(tmp_path, monkeypatch, web):
+    s, bus = make_skill(tmp_path, monkeypatch, f"{CLASSICS} | Classics | me | secret", web)
+    data = ask(bus, skill_module.CATALOGS_SET, {"catalogs": [
+        {"url": CLASSICS, "name": "My classics", "username": "me", "password": None},
+        {"url": SE, "name": "Standard Ebooks", "language": "en"},
+        {"url": "not a url"},
+        {"url": "https://x.example.com/opds", "name": "bad | name"}]})
+    assert s.settings["catalogs"] == (f"{CLASSICS} | My classics | me | secret\n"
+                                      f"{SE} | Standard Ebooks | | | en")
+    assert [c["name"] for c in data["catalogs"]] == ["My classics", "Standard Ebooks"]
+    assert {c["url"]: c["books"] > 0 for c in data["catalogs"]} == {CLASSICS: True, SE: True}
+
+
+def test_a_catalog_that_cannot_be_read_says_why_and_keeps_its_books(skill, web):
+    s, bus = skill
+    before = ask(bus, skill_module.CATALOGS_LIST)["catalogs"][0]["books"]
+    web.pages.pop(CLASSICS, None) if hasattr(web, "pages") else None
+    s._get = lambda url, limit=None: (_ for _ in ()).throw(OSError("down for maintenance"))
+    data = ask(bus, skill_module.CATALOGS_REFRESH)
+    first = data["catalogs"][0]
+    assert first["books"] == before and "down for maintenance" in first["error"]

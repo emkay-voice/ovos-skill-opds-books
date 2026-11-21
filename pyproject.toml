@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ovos-skill-opds-books"
-version = "0.1.0a1"
+version = "0.1.0a2"
 description = "Reads books aloud from e-book catalogs - any OPDS catalog (1 or 2), or a feed of books such as Standard Ebooks' new releases. A provider for the common reading pipeline."
 readme = "README.md"
 license = {text = "Apache-2.0"}
@@ -29,7 +29,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest", "ovos-common-reading-pipeline-plugin"]
+test = ["pytest", "ovos-common-reading-pipeline-plugin", "fastapi", "httpx"]
 
 [project.urls]
 Homepage = "https://github.com/emkay-voice/ovos-skill-opds-books"
@@ -41,11 +41,17 @@ Icon = "https://raw.githubusercontent.com/emkay-voice/ovos-skill-opds-books/main
 [project.entry-points."opm.skill"]
 "ovos-skill-opds-books.emkay-voice" = "ovos_skill_opds_books:OPDSBooksSkill"
 
+# A page in ovos-control-panel (see panel/__init__.py). Only the panel loads it.
+[project.entry-points."opm.control_panel.page"]
+books = "ovos_skill_opds_books.panel:PAGE"
+
 [tool.setuptools]
-packages = ["ovos_skill_opds_books"]
+packages = ["ovos_skill_opds_books", "ovos_skill_opds_books.panel"]
 
 [tool.setuptools.package-dir]
 ovos_skill_opds_books = ""
+"ovos_skill_opds_books.panel" = "panel"
 
 [tool.setuptools.package-data]
 ovos_skill_opds_books = ["locale/**/*", "*.png", "settingsmeta.json"]
+"ovos_skill_opds_books.panel" = ["page.html", "icon.svg", "i18n/*.json"]

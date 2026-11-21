@@ -57,6 +57,12 @@ COMMON_READING_PONG = "ovos.common_reading.pong"
 COMMON_READING_VOCABULARY = "ovos.common_reading.vocabulary"
 COMMON_READING_VOCABULARY_GET = "ovos.common_reading.vocabulary.get"
 
+# for a control-panel page (or anything else): the catalogs, as data.
+# Passwords are taken in, never sent out: a catalog only says it has a login.
+CATALOGS_LIST = "ovos.opds.catalogs.list"        # -> .response {"catalogs": [...], "refresh_hours"}
+CATALOGS_SET = "ovos.opds.catalogs.set"          # {"catalogs": [...]} -> .response, as list
+CATALOGS_REFRESH = "ovos.opds.catalogs.refresh"  # -> .response, as list (reading goes on in the background)
+
 CONTENT_TYPES = ["book"]
 DEFAULT_CATALOGS = [{"url": "https://standardebooks.org/feeds/atom/new-releases", "name": "Standard Ebooks"}]
 NO_TITLE_CONFIDENCE = 0.9
@@ -148,6 +154,9 @@ class OPDSBooksSkill(OVOSSkill):
         self.add_event(f"{COMMON_READING_FETCH_CONTENT}.{self.skill_id}", self.handle_fetch_content)
         self.add_event(COMMON_READING_PING, self.handle_ping)
         self.add_event(COMMON_READING_VOCABULARY_GET, self.handle_vocabulary_get)
+        self.add_event(CATALOGS_LIST, self.handle_catalogs_list)
+        self.add_event(CATALOGS_SET, self.handle_catalogs_set)
+        self.add_event(CATALOGS_REFRESH, self.handle_catalogs_refresh)
         self.settings_change_callback = lambda: self.refresh(force=True, background=True)
         self._announce_vocabulary()  # what was known at the last start, at once
         self.refresh(background=True)
@@ -241,6 +250,9 @@ class OPDSBooksSkill(OVOSSkill):
             return False
         except Exception as e:
             self.log.error(f"could not read the catalog {url}: {e}")
+            with self._lock:
+                # the books it had stay; the error is for a page to show
+                self.state.setdefault(url, {})["error"] = str(e)[:300]
             return False
         search, is_description = start.search, start.search_is_description
         if search and is_description:
@@ -255,6 +267,54 @@ class OPDSBooksSkill(OVOSSkill):
             changed = known.get("books") != entry["books"] or known.get("name") != entry["name"]
             self.state[url] = entry
         return changed
+
+    # --- the catalogs, as data (for a control-panel page) ----------------------------------
+
+    def _catalogs_data(self):
+        out = []
+        with self._lock:
+            for c in self.catalogs():
+                known = self.state.get(c["url"], {})
+                out.append({"url": c["url"], "name": c.get("name") or "", "title": known.get("name") or "",
+                            "username": c.get("username") or "", "login": bool(c.get("username")),
+                            "language": c.get("language") or "", "books": len(known.get("books") or []),
+                            "fetched": known.get("fetched"), "retry_after": known.get("retry_after"),
+                            "error": known.get("error") or ""})
+        return {"catalogs": out,
+                "refresh_hours": float(self.settings.get("refresh_hours") or REFRESH_HOURS),
+                "refreshing": self._refreshing.locked()}
+
+    def handle_catalogs_list(self, message):
+        self.bus.emit(message.response(self._catalogs_data()))
+
+    def handle_catalogs_set(self, message):
+        """Replace the catalogs and save them in the skill's settings. A
+        catalog sent without a password (None) keeps the one it had, so a page
+        never needs to know it."""
+        old = {c["url"]: c for c in self.catalogs()}
+        lines = []
+        for c in parse_catalogs(message.data.get("catalogs") or []):
+            password = c.get("password")
+            if password is None:
+                password = old.get(c["url"], {}).get("password") or ""
+            fields = [c["url"], c.get("name") or "", c.get("username") or "", password,
+                      c.get("language") or ""]
+            if any("|" in f or "\n" in f for f in fields):
+                continue  # would not survive the one-per-line setting
+            line = fields[0] + "".join(f" | {f}" if f else " |" for f in fields[1:])
+            lines.append(line.rstrip(" |"))
+        self.settings["catalogs"] = "\n".join(lines)
+        if message.data.get("refresh_hours") is not None:
+            self.settings["refresh_hours"] = message.data["refresh_hours"]
+        store = getattr(self.settings, "store", None)
+        if callable(store):
+            store()
+        self.refresh(force=True, background=True)
+        self.bus.emit(message.response(self._catalogs_data()))
+
+    def handle_catalogs_refresh(self, message):
+        self.refresh(force=True, background=True)
+        self.bus.emit(message.response(self._catalogs_data()))
 
     # --- books, by language -----------------------------------------------------------------
 
