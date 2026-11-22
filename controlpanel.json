@@ -1,0 +1,114 @@
+{
+ "controlpanel": 1,
+ "id": "books",
+ "path": "/books",
+ "title": "books.title",
+ "group": "library",
+ "groups": [
+  {
+   "id": "library",
+   "title": "nav.group.library",
+   "order": 5,
+   "level": "everyday"
+  }
+ ],
+ "order": 20,
+ "icon": "controlpanel.svg",
+ "bus": "ovos.opds.",
+ "blocks": [
+  {
+   "type": "text",
+   "text": "books.intro"
+  },
+  {
+   "type": "list",
+   "heading": "books.catalogs.title",
+   "query": "ovos.opds.catalogs.list",
+   "refresh": 30,
+   "items": "catalogs",
+   "key": "url",
+   "title": "{shown}",
+   "meta": "books.meta",
+   "empty": "books.none",
+   "actions": [
+    {
+     "label": "books.remove",
+     "send": "ovos.opds.catalogs.remove"
+    }
+   ]
+  },
+  {
+   "type": "actions",
+   "actions": [
+    {
+     "label": "books.refresh",
+     "send": "ovos.opds.catalogs.refresh",
+     "privileged": false
+    }
+   ]
+  },
+  {
+   "type": "form",
+   "heading": "books.add",
+   "query": "ovos.opds.catalogs.list",
+   "save": {
+    "send": "ovos.opds.catalogs.add"
+   },
+   "fields": [
+    {
+     "name": "url",
+     "label": "books.f.url",
+     "type": "url",
+     "required": true,
+     "max_length": 2000
+    },
+    {
+     "name": "name",
+     "label": "books.f.name",
+     "type": "text",
+     "max_length": 200
+    },
+    {
+     "name": "language",
+     "label": "books.f.language",
+     "type": "text",
+     "max_length": 20
+    },
+    {
+     "name": "username",
+     "label": "books.f.username",
+     "type": "text",
+     "max_length": 200
+    },
+    {
+     "name": "password",
+     "label": "books.f.password",
+     "type": "password",
+     "max_length": 500,
+     "hint": "books.add.hint"
+    }
+   ]
+  },
+  {
+   "type": "form",
+   "query": "ovos.opds.catalogs.list",
+   "save": {
+    "send": "ovos.opds.catalogs.every"
+   },
+   "fields": [
+    {
+     "name": "refresh_hours",
+     "label": "books.every",
+     "type": "number",
+     "min": 1,
+     "max": 720,
+     "step": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "text": "books.ask"
+  }
+ ]
+}
