@@ -62,6 +62,9 @@ COMMON_READING_VOCABULARY_GET = "ovos.common_reading.vocabulary.get"
 CATALOGS_LIST = "ovos.opds.catalogs.list"        # -> .response {"catalogs": [...], "refresh_hours"}
 CATALOGS_SET = "ovos.opds.catalogs.set"          # {"catalogs": [...]} -> .response, as list
 CATALOGS_REFRESH = "ovos.opds.catalogs.refresh"  # -> .response, as list (reading goes on in the background)
+CATALOGS_ADD = "ovos.opds.catalogs.add"          # one catalog, added or changed by its url -> as list
+CATALOGS_REMOVE = "ovos.opds.catalogs.remove"    # {"url"} -> as list
+CATALOGS_EVERY = "ovos.opds.catalogs.every"      # {"refresh_hours"} -> as list
 
 CONTENT_TYPES = ["book"]
 DEFAULT_CATALOGS = [{"url": "https://standardebooks.org/feeds/atom/new-releases", "name": "Standard Ebooks"}]
@@ -157,6 +160,9 @@ class OPDSBooksSkill(OVOSSkill):
         self.add_event(CATALOGS_LIST, self.handle_catalogs_list)
         self.add_event(CATALOGS_SET, self.handle_catalogs_set)
         self.add_event(CATALOGS_REFRESH, self.handle_catalogs_refresh)
+        self.add_event(CATALOGS_ADD, self.handle_catalogs_add)
+        self.add_event(CATALOGS_REMOVE, self.handle_catalogs_remove)
+        self.add_event(CATALOGS_EVERY, self.handle_catalogs_every)
         self.settings_change_callback = lambda: self.refresh(force=True, background=True)
         self._announce_vocabulary()  # what was known at the last start, at once
         self.refresh(background=True)
@@ -275,11 +281,15 @@ class OPDSBooksSkill(OVOSSkill):
         with self._lock:
             for c in self.catalogs():
                 known = self.state.get(c["url"], {})
+                error = known.get("error") or ""
                 out.append({"url": c["url"], "name": c.get("name") or "", "title": known.get("name") or "",
                             "username": c.get("username") or "", "login": bool(c.get("username")),
                             "language": c.get("language") or "", "books": len(known.get("books") or []),
                             "fetched": known.get("fetched"), "retry_after": known.get("retry_after"),
-                            "error": known.get("error") or ""})
+                            "error": error,
+                            # as the control panel's page shows it
+                            "shown": c.get("name") or known.get("name") or c["url"],
+                            "state": "error" if error else ("read" if known.get("fetched") else "new")})
         return {"catalogs": out,
                 "refresh_hours": float(self.settings.get("refresh_hours") or REFRESH_HOURS),
                 "refreshing": self._refreshing.locked()}
@@ -287,16 +297,19 @@ class OPDSBooksSkill(OVOSSkill):
     def handle_catalogs_list(self, message):
         self.bus.emit(message.response(self._catalogs_data()))
 
-    def handle_catalogs_set(self, message):
-        """Replace the catalogs and save them in the skill's settings. A
-        catalog sent without a password (None) keeps the one it had, so a page
-        never needs to know it."""
+    def _save_catalogs(self, catalogs, refresh_hours=None):
+        """Keep the catalogs in the skill's settings, read them again, and
+        give back the list. A catalog without a password (None) keeps the
+        one it had, so a page never needs to know it; one without a user
+        name has none."""
         old = {c["url"]: c for c in self.catalogs()}
         lines = []
-        for c in parse_catalogs(message.data.get("catalogs") or []):
+        for c in parse_catalogs(catalogs):
             password = c.get("password")
             if password is None:
                 password = old.get(c["url"], {}).get("password") or ""
+            if not c.get("username"):
+                password = ""
             fields = [c["url"], c.get("name") or "", c.get("username") or "", password,
                       c.get("language") or ""]
             if any("|" in f or "\n" in f for f in fields):
@@ -304,13 +317,46 @@ class OPDSBooksSkill(OVOSSkill):
             line = fields[0] + "".join(f" | {f}" if f else " |" for f in fields[1:])
             lines.append(line.rstrip(" |"))
         self.settings["catalogs"] = "\n".join(lines)
-        if message.data.get("refresh_hours") is not None:
-            self.settings["refresh_hours"] = message.data["refresh_hours"]
+        if refresh_hours is not None:
+            self.settings["refresh_hours"] = refresh_hours
         store = getattr(self.settings, "store", None)
         if callable(store):
             store()
         self.refresh(force=True, background=True)
-        self.bus.emit(message.response(self._catalogs_data()))
+        return self._catalogs_data()
+
+    def _kept(self, but=None):
+        """The catalogs there are (but one), each keeping its password."""
+        return [dict(c, password=None) for c in self.catalogs() if c["url"] != but]
+
+    def handle_catalogs_set(self, message):
+        """Replace the catalogs (a list as _save_catalogs takes it)."""
+        self.bus.emit(message.response(self._save_catalogs(message.data.get("catalogs") or [],
+                                                           message.data.get("refresh_hours"))))
+
+    def handle_catalogs_add(self, message):
+        """Add a catalog, or change the one with the same address."""
+        c = {k: str(message.data.get(k) or "").strip() for k in ("url", "name", "username", "language")}
+        if not re.match(r"^https?://\S+$", c["url"]):
+            self.bus.emit(message.response({"error": "books.err.url"}))
+            return
+        if any("|" in v or "\n" in v for v in c.values()):
+            self.bus.emit(message.response({"error": "books.err.bar"}))
+            return
+        c["password"] = message.data.get("password") or None
+        self.bus.emit(message.response(self._save_catalogs(self._kept(but=c["url"]) + [c])))
+
+    def handle_catalogs_remove(self, message):
+        url = str(message.data.get("url") or "")
+        self.bus.emit(message.response(self._save_catalogs(self._kept(but=url))))
+
+    def handle_catalogs_every(self, message):
+        try:
+            hours = min(max(float(message.data.get("refresh_hours")), 1.0), 24.0 * 30)
+        except (TypeError, ValueError):
+            self.bus.emit(message.response({"error": "books.err.hours"}))
+            return
+        self.bus.emit(message.response(self._save_catalogs(self._kept(), hours)))
 
     def handle_catalogs_refresh(self, message):
         self.refresh(force=True, background=True)

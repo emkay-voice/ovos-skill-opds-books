@@ -69,17 +69,21 @@ an e-reader app does.
 
 With [ovos-control-panel](https://github.com/OpenVoiceOS/ovos-control-panel) on the device, the skill brings
 its own page, **Books**, under **Library**. It shows each catalog with how many books it has, when it was read and,
-if it could not be read, why. There you add, change and remove catalogs, set how often they are read, and read
-them again at once. A password is never shown: leave the field empty to keep it. Changing the catalogs needs the
-panel's access token.
+if it could not be read, why. There you add, change (add one with the same address) and remove catalogs, set how often they are read,
+and read them again at once. A password is never shown: leave the field empty to keep it. Changing the catalogs
+needs the panel's access token. The page is described in `controlpanel.json`, with its words in
+`locale/<lang>/controlpanel.json`: the panel draws it, and no code of the skill runs in the panel.
 
 ### The messages behind it
 
 | Message | Data | Answer (`<message>.response`) |
 |---|---|---|
-| `ovos.opds.catalogs.list` | | `catalogs` (url, name, title, username, login, language, books, fetched, retry_after, error; never a password), `refresh_hours`, `refreshing` |
+| `ovos.opds.catalogs.list` | | `catalogs` (url, name, title, username, login, language, books, fetched, retry_after, error, shown, state; never a password), `refresh_hours`, `refreshing` |
 | `ovos.opds.catalogs.set` | `catalogs` (url, name, username, password, language; a password of `null` keeps the one it had), optional `refresh_hours` | as `list`, after saving them and starting to read them |
 | `ovos.opds.catalogs.refresh` | | as `list`; the catalogs are read in the background |
+| `ovos.opds.catalogs.add` | url, name, username, password, language: one catalog, which changes the one with the same url | as `set`, or `error` |
+| `ovos.opds.catalogs.remove` | `url` | as `set` |
+| `ovos.opds.catalogs.every` | `refresh_hours` | as `set`, or `error` |
 
 ## Being polite to catalogs
 
