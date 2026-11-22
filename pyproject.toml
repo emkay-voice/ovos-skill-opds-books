@@ -4,11 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ovos-skill-opds-books"
-version = "0.1.0a4"
+version = "0.1.0a5"
 description = "Reads books aloud from e-book catalogs - any OPDS catalog (1 or 2), or a feed of books such as Standard Ebooks' new releases. A provider for the common reading pipeline."
 readme = "README.md"
 license = {text = "Apache-2.0"}
 authors = [{name = "emkay-voice"}]
+maintainers = [{name = "Andreas Lorensen"}]
 requires-python = ">=3.10"
 keywords = ["ovos", "openvoiceos", "skill", "voice", "assistant", "reading", "books", "ebooks", "opds", "epub", "standard-ebooks", "common-reading", "emkay"]
 classifiers = [
